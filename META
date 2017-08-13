@@ -1,0 +1,7 @@
+name="loga"
+version="0.0.1"
+description=""
+requires="ocaml-compiler-libs"
+archive(byte)="loga.cma"
+archive(native)="loga.cmxa"
+ppx="./ppx-loga"

@@ -22,7 +22,15 @@
 # Phony targets are scoped, so you probably want to declare them first.
 #
 
-.PHONY: install uninstall clean
+# .PHONY: all install clean
+
+########################################################################
+# Subdirectories.
+# You may want to include some subdirectories in this project.
+# If so, define the subdirectory targets and uncomment this section.
+#
+
+# .SUBDIRS:
 
 ########################################################################
 # OCaml configuration.
@@ -32,34 +40,64 @@
 # variables.
 #
 
-USE_OCAMLFIND = true
-
-OCAMLPACKS[] =
-    ocaml-compiler-libs
-    ocaml-compiler-libs.common
-    ocaml-compiler-libs.shadow
-
-if $(not $(OCAMLFIND_EXISTS))
-    eprintln(This project requires ocamlfind, but is was not found.)
-    eprintln(You need to install ocamlfind and run "omake --configure".)
-    exit 1
-
 #
-# Include path
+# Compile native or byte code?
 #
-# OCAMLINCLUDES +=
+# The default values are defined as follows:
+#
+NATIVE_ENABLED = true
+BYTE_ENABLED = true
 
 #
 # Various options
 #
-# OCAMLFLAGS    +=
+OCAMLFLAGS    += -annot -bin-annot
 # OCAMLCFLAGS   +=
 # OCAMLOPTFLAGS +=
 # OCAML_LINK_FLAGS +=
 # OCAML_BYTE_LINK_FLAGS +=
 # OCAML_NATIVE_LINK_FLAGS +=
 
-########################################################################
-# Subdirectories.
+################################################
+# Generated files
+#
+# Workaround for the fact that ocamldep does not pay attention to .mll
+# and .mly files.
+#
+# OCamlGeneratedFiles(parser.ml lexer.ml)
 
-.SUBDIRS: src example
+################################################
+# Build an OCaml library
+#
+
+LIB_FILES[] =
+    loga
+
+LIB = loga
+
+.DEFAULT: $(OCamlLibrary $(LIB), $(LIB_FILES))
+
+################################################
+# Build an OCaml program
+#
+
+BIN_FILES[] =
+    ppx_loga
+
+PROGRAM = ppx-loga
+OCAML_LIBS +=
+OCAML_CLIBS +=
+OCAML_OTHER_LIBS +=
+OCAML_LIB_FLAGS +=
+
+.DEFAULT: $(OCamlProgram $(PROGRAM), $(BIN_FILES))
+
+install:
+    $(OCAMLFIND) install loga ../META *.cmx *.cmi *.cma *.cmxa *.a $(PROGRAM)
+
+uninstall:
+    $(OCAMLFIND) remove loga
+
+clean:
+    rm -f *~ *.opt *.cmi *.cmx *.cmt *.cmti *.cmp *.cmo *.cma *.cmxa *.omc \
+        *.o *.a *.out *.run *.s *.bc *.log *.cache *.annot $(LIB) $(PROGRAM)

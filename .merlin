@@ -1,0 +1,7 @@
+S src
+B src
+S example
+B example
+PKG ocaml-compiler-libs
+PKG ocaml-compiler-libs.common
+PKG ocaml-compiler-libs.shadow
