@@ -38,6 +38,7 @@ OCAMLPACKS[] =
     ocaml-compiler-libs
     ocaml-compiler-libs.common
     ocaml-compiler-libs.shadow
+    unix
 
 if $(not $(OCAMLFIND_EXISTS))
     eprintln(This project requires ocamlfind, but is was not found.)
