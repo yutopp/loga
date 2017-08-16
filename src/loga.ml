@@ -36,13 +36,13 @@ module Severity =
 
 let kfprint_datetime k formatter =
   let tz, _ = Unix.mktime (Unix.gmtime 0.0) in
-  let Unix.{
-    tm_year = year;
-    tm_mon = month;
-    tm_mday = mday;
-    tm_hour = hours;
-    tm_min = minutes;
-    tm_sec = seconds;
+  let {
+    Unix.tm_year = year;
+    Unix.tm_mon = month;
+    Unix.tm_mday = mday;
+    Unix.tm_hour = hours;
+    Unix.tm_min = minutes;
+    Unix.tm_sec = seconds;
   } = Unix.localtime (Unix.gettimeofday ()) in
   let tz_hours = -(int_of_float tz) / 3600 in
   let tz_minutes = -(int_of_float tz) / 60 mod 60 in
