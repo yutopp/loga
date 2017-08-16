@@ -35,9 +35,7 @@
 USE_OCAMLFIND = true
 
 OCAMLPACKS[] =
-    ocaml-compiler-libs
-    ocaml-compiler-libs.common
-    ocaml-compiler-libs.shadow
+    ocaml-migrate-parsetree
     unix
 
 if $(not $(OCAMLFIND_EXISTS))

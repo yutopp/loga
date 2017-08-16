@@ -1,10 +1,12 @@
-open Ocaml_common.Ast_mapper
-open Ocaml_common.Ast_helper
+open Migrate_parsetree
+open Ast_403
+
+open Ast_mapper
 open Parsetree
 open Asttypes
 open Location
 
-let loga_mapper argv =
+let loga_mapper _config _cookies =
   let check_and_generate_apply fname loc exprs =
     let severity = match fname with
       | "Loga.emergency"    -> 0
@@ -97,4 +99,4 @@ let loga_mapper argv =
   { default_mapper with expr }
 
 let () =
-  register "Loga" loga_mapper
+  Driver.register ~name:"Loga" Versions.ocaml_403 loga_mapper
