@@ -15,7 +15,7 @@ let loga_mapper argv =
       | "Loga.notice"       -> 5
       | "Loga.info"         -> 6
       | "Loga.debug"        -> 7
-      | _ -> failwith "[ICE] not supported"
+      | _                   -> failwith "[ERR] not supported"
     in
     let line = loc.loc_start.Lexing.pos_lnum in
     let checked_args =
@@ -28,7 +28,7 @@ let loga_mapper argv =
             pexp_attributes = [];
           };
           {
-            pexp_desc = Pexp_ident { txt = Longident.parse "__MODULE__"; loc };
+            pexp_desc = Pexp_ident {txt = Longident.parse "__MODULE__"; loc};
             pexp_loc = none;
             pexp_attributes = [];
           };
@@ -49,8 +49,8 @@ let loga_mapper argv =
     in
     let callee =
       {
-        pexp_desc = Pexp_ident { txt = Longident.parse "Loga.log"; loc = none };
-        pexp_loc = none;
+        pexp_desc = Pexp_ident {txt = Longident.parse "Loga.log"; loc = none};
+        pexp_loc = loc;
         pexp_attributes = [];
       }
     in
@@ -58,14 +58,14 @@ let loga_mapper argv =
   in
   let expr mapper expr =
     match expr with
-    | { pexp_desc = Pexp_extension ({ txt = "Loga.emergency" as fname; loc }, pstr)}
-    | { pexp_desc = Pexp_extension ({ txt = "Loga.alert" as fname; loc }, pstr)}
-    | { pexp_desc = Pexp_extension ({ txt = "Loga.critical" as fname; loc }, pstr)}
-    | { pexp_desc = Pexp_extension ({ txt = "Loga.error" as fname; loc }, pstr)}
-    | { pexp_desc = Pexp_extension ({ txt = "Loga.warning" as fname; loc }, pstr)}
-    | { pexp_desc = Pexp_extension ({ txt = "Loga.notice" as fname; loc }, pstr)}
-    | { pexp_desc = Pexp_extension ({ txt = "Loga.info" as fname; loc }, pstr)}
-    | { pexp_desc = Pexp_extension ({ txt = "Loga.debug" as fname; loc }, pstr)} ->
+    | {pexp_desc = Pexp_extension ({txt = "Loga.emergency" as fname; loc}, pstr)}
+    | {pexp_desc = Pexp_extension ({txt = "Loga.alert"     as fname; loc}, pstr)}
+    | {pexp_desc = Pexp_extension ({txt = "Loga.critical"  as fname; loc}, pstr)}
+    | {pexp_desc = Pexp_extension ({txt = "Loga.error"     as fname; loc}, pstr)}
+    | {pexp_desc = Pexp_extension ({txt = "Loga.warning"   as fname; loc}, pstr)}
+    | {pexp_desc = Pexp_extension ({txt = "Loga.notice"    as fname; loc}, pstr)}
+    | {pexp_desc = Pexp_extension ({txt = "Loga.info"      as fname; loc}, pstr)}
+    | {pexp_desc = Pexp_extension ({txt = "Loga.debug"     as fname; loc}, pstr)} ->
        begin
          match pstr with
          | PStr [{ pstr_desc = Pstr_eval (sexpr, attrs) }] ->

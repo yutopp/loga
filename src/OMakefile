@@ -71,6 +71,9 @@ OCAMLFLAGS    += -annot -bin-annot
 #
 
 LIB_FILES[] =
+    loga_context
+    loga_severity
+    loga_printer
     loga
 
 LIB = loga

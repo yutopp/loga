@@ -17,5 +17,5 @@ omake && omake example && ./example/log_example
 
 You can check that the source codes which preprocessed by ppx-loga.
 ```
-omake && ocamlc -dsource -ppx ./src/ppx_loga.opt example/log_example.ml
+omake && ocamlc -dsource -ppx ./src/ppx-loga.opt example/log_example.ml
 ```

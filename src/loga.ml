@@ -1,71 +1,45 @@
-module Severity =
-  struct
-    type t =
-      | Emergency
-      | Alert
-      | Critical
-      | Error
-      | Warning
-      | Notice
-      | Info
-      | Debug
+(*
+ * Copyright yutopp 2017 - .
+ *
+ * Distributed under the Boost Software License, Version 1.0.
+ * (See accompanying file LICENSE_1_0.txt or copy at
+ * http://www.boost.org/LICENSE_1_0.txt)
+ *)
 
-    let of_int n =
-      match n with
-      | 0 -> Emergency
-      | 1 -> Alert
-      | 2 -> Critical
-      | 3 -> Error
-      | 4 -> Warning
-      | 5 -> Notice
-      | 6 -> Info
-      | 7 -> Debug
-      | _ -> failwith "unexpected"
+let s_base_severity = ref Loga_severity.Debug
 
-    let string_of k =
-      match k with
-      | Emergency   -> "EMERGENCY"
-      | Alert       -> "ALERT"
-      | Critical    -> "CRITICAL"
-      | Error       -> "ERROR"
-      | Warning     -> "WARNING"
-      | Notice      -> "NOTICE"
-      | Info        -> "INFO"
-      | Debug       -> "DEBUG"
-  end
+let set_base_severity serverity =
+  s_base_severity := serverity
 
-let kfprint_datetime k formatter =
-  let tz, _ = Unix.mktime (Unix.gmtime 0.0) in
-  let {
-    Unix.tm_year = year;
-    Unix.tm_mon = month;
-    Unix.tm_mday = mday;
-    Unix.tm_hour = hours;
-    Unix.tm_min = minutes;
-    Unix.tm_sec = seconds;
-  } = Unix.localtime (Unix.gettimeofday ()) in
-  let tz_hours = -(int_of_float tz) / 3600 in
-  let tz_minutes = -(int_of_float tz) / 60 mod 60 in
-  Format.kfprintf k formatter
-                  "%04d-%02d-%02dT%02d:%02d:%02d%0+3d:%02d "
-                  (year + 1900) (month + 1) mday
-                  hours minutes seconds tz_hours tz_minutes
+let log (severity_i, module_name, line) fmt =
+  let severity = (Loga_severity.of_int severity_i) in
+  match Loga_severity.more_severe_than_or_equal severity !s_base_severity with
+  | true ->
+     let ctx =
+       Loga_context.make ~severity:severity
+                         ~module_name:module_name
+                         ~line:line
+     in
+     let printer =
+       let open Loga_printer.Builtin in
+       datetime_printer
+       >> severity_printer
+       >> position_printer
+       >> format_printer
+       >> endline_printer
+     in
+     printer () ctx Format.std_formatter fmt
+  | _ ->
+     (* ignore *)
+     Printf.ifprintf Format.std_formatter fmt
 
-let default_printer (severity, module_, line) formatter fmt =
-  let k formatter =
-    Format.fprintf formatter "\n%!"
-  in
-  let k formatter =
-    Format.kfprintf k formatter fmt
-  in
-  let k formatter =
-    Format.kfprintf k formatter "(%s:%d) " module_ line
-  in
-  let k formatter =
-    Format.kfprintf k formatter "[%s] " (Severity.string_of severity)
-  in
-  kfprint_datetime k formatter
-
-let log (severity_i, module_, line) fmt =
-  default_printer (Severity.of_int severity_i, module_, line)
-                  Format.std_formatter fmt
+(* dummy implementations for auto complete.
+   NEVER called because these function names are rewritten by ppx *)
+let emergency _ = failwith ""
+let alert     _ = failwith ""
+let critical  _ = failwith ""
+let error     _ = failwith ""
+let warning   _ = failwith ""
+let notice    _ = failwith ""
+let info      _ = failwith ""
+let debug     _ = failwith ""
