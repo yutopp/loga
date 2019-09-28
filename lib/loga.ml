@@ -21,7 +21,7 @@ let log (severity_i, module_name, line) fmt =
                          ~line:line
      in
      let printer =
-       let open Loga_printer.Builtin in
+       let open Printer.Builtin in
        datetime_printer
        >> severity_printer
        >> position_printer

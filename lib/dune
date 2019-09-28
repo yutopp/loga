@@ -1,0 +1,10 @@
+(library
+ (name loga)
+ (public_name loga)
+ (kind ppx_rewriter)
+ (libraries ppxlib)
+ (preprocess (pps ppxlib.metaquot)))
+
+(env
+ (dev
+  (flags (:standard -warn-error -a))))

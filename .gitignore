@@ -16,3 +16,6 @@ example/*
 !example/OMakefile
 !example/*.ml
 !example/*.mli
+
+/_build
+.merlin

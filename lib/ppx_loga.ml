@@ -1,9 +1,11 @@
-open Ocaml_common.Ast_mapper
+(*open Ocaml_common.Ast_mapper
 open Ocaml_common.Ast_helper
 open Parsetree
 open Asttypes
-open Location
+open Location*)
+open Ppxlib
 
+(*
 let loga_mapper argv =
   let check_and_generate_apply fname loc exprs =
     let severity = match fname with
@@ -97,4 +99,20 @@ let loga_mapper argv =
   { default_mapper with expr }
 
 let () =
-  register "Loga" loga_mapper
+  register "Loga" loga_mapper*)
+
+let expand ~loc ~path:_ (ident : longident) args =
+  let f = [%expr Loga.log] in
+  Ast_builder.Default.pexp_apply ~loc f args
+
+let ext =
+  Extension.declare
+    "e"
+    Extension.Context.expression
+    Ast_pattern.(single_expr_payload (pexp_apply (pexp_ident __) __))
+    expand
+
+let register () =
+  Driver.register_transformation
+    "Loga"
+    ~extensions:[ext]
