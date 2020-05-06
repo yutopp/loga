@@ -2,23 +2,23 @@ open Ppxlib
 
 let gen_log_expr severity ~loc ~path:_ expr =
   let open Ast_builder.Default in
-  let line = loc.loc_start.Lexing.pos_lnum in
-  let callee =
-    match severity with
-    | Loga.Severity.Emergency -> [%expr Loga.Logger.emergency]
-    | Loga.Severity.Alert -> [%expr Loga.Logger.alert]
-    | Loga.Severity.Critical -> [%expr Loga.Logger.critical]
-    | Loga.Severity.Error -> [%expr Loga.Logger.error]
-    | Loga.Severity.Warning -> [%expr Loga.Logger.warning]
-    | Loga.Severity.Notice -> [%expr Loga.Logger.notice]
-    | Loga.Severity.Info -> [%expr Loga.Logger.info]
-    | Loga.Severity.Debug -> [%expr Loga.Logger.debug]
-  in
-  let logger = [%expr Loga.default_logger] in
-  let location =
-    [%expr [%e pexp_tuple ~loc [ evar ~loc "__MODULE__"; eint ~loc line ]]]
-  in
   let apply args =
+    let line = loc.loc_start.Lexing.pos_lnum in
+    let callee =
+      match severity with
+      | Loga.Severity.Emergency -> [%expr Loga.Logger.emergency]
+      | Loga.Severity.Alert -> [%expr Loga.Logger.alert]
+      | Loga.Severity.Critical -> [%expr Loga.Logger.critical]
+      | Loga.Severity.Error -> [%expr Loga.Logger.error]
+      | Loga.Severity.Warning -> [%expr Loga.Logger.warning]
+      | Loga.Severity.Notice -> [%expr Loga.Logger.notice]
+      | Loga.Severity.Info -> [%expr Loga.Logger.info]
+      | Loga.Severity.Debug -> [%expr Loga.Logger.debug]
+    in
+    let logger = [%expr Loga.default_logger] in
+    let location =
+      [%expr [%e pexp_tuple ~loc [ evar ~loc "__MODULE__"; eint ~loc line ]]]
+    in
     {
       expr with
       pexp_desc =
