@@ -9,7 +9,7 @@
 type 'a cont = Format.formatter -> 'a
 
 module Builtin = struct
-  let endline_printer _k _ctx formatter _fmt = Format.fprintf formatter "\n%!"
+  let endline_printer k _ctx formatter _fmt = Format.kfprintf k formatter "\n%!"
 
   let format_printer k _ctx formatter fmt : 'a = Format.kfprintf k formatter fmt
 
