@@ -17,9 +17,11 @@ module type LOGGER = sig
 
   type 'a format_t = ('a, Format.formatter, unit, unit) format4
 
-  val create : severity:Severity.t -> time:'a -> t
+  val create : severity:Severity.t -> formatter:Format.formatter -> time:'a -> t
 
   val set_severity : t -> Severity.t -> unit
+
+  val set_formatter : t -> Format.formatter -> unit
 
   val log : t -> Severity.t -> location_t -> 'a format_t -> 'a
 
@@ -41,15 +43,20 @@ module type LOGGER = sig
 end
 
 module Logger : LOGGER = struct
-  type t = { mutable severity : Severity.t }
+  type t = {
+    mutable severity : Severity.t;
+    mutable formatter : Format.formatter;
+  }
 
   type location_t = string * int
 
   type 'a format_t = ('a, Format.formatter, unit, unit) format4
 
-  let create ~severity ~time:_ = { severity }
+  let create ~severity ~formatter ~time:_ = { severity; formatter }
 
   let set_severity logger severity = logger.severity <- severity
+
+  let set_formatter logger formatter = logger.formatter <- formatter
 
   let printer () =
     let open Loga_printer.Builtin in
@@ -61,10 +68,10 @@ module Logger : LOGGER = struct
     match Severity.more_severe_than_or_equal severity logger.severity with
     | true ->
         let ctx = Loga_context.make ~severity ~module_name ~line in
-        pp () ctx Format.std_formatter fmt
+        pp (fun _ -> ()) ctx logger.formatter fmt
     | _ ->
         (* ignore *)
-        Printf.ifprintf Format.std_formatter fmt
+        Printf.ifprintf logger.formatter fmt
 
   let emergency logger location fmt = log logger Severity.Emergency location fmt
 
@@ -83,7 +90,8 @@ module Logger : LOGGER = struct
   let debug logger location fmt = log logger Severity.Debug location fmt
 end
 
-let default_logger = Logger.create ~severity:Severity.Debug ~time:0
+let default_logger =
+  Logger.create ~severity:Severity.Debug ~formatter:Format.std_formatter ~time:0
 
 (* dummy implementations for auto complete.
    NEVER called because these function names are rewritten by ppx *)
