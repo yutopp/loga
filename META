@@ -1,7 +1,0 @@
-name="loga"
-version="0.0.2"
-description="Logging library for OCaml"
-requires="ocaml-compiler-libs unix"
-archive(byte)="loga.cma"
-archive(native)="loga.cmxa"
-ppx="./ppx-loga"

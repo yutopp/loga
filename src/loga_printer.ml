@@ -10,22 +10,22 @@ type 'a cont = (Format.formatter -> 'a)
 
 module Builtin =
   struct
-    let endline_printer _k ctx formatter fmt =
+    let endline_printer _k _ctx formatter _fmt =
       Format.fprintf formatter "\n%!"
 
-    let format_printer k ctx formatter fmt : 'a =
+    let format_printer k _ctx formatter fmt : 'a =
       Format.kfprintf k formatter fmt
 
-    let position_printer k ctx formatter fmt : 'a =
+    let position_printer k ctx formatter _fmt : 'a =
       let module_name = Loga_context.module_name ctx in
       let line = Loga_context.line ctx in
       Format.kfprintf k formatter "(%s:%d) " module_name line
 
-    let severity_printer k ctx formatter fmt : 'a =
+    let severity_printer k ctx formatter _fmt : 'a =
       let severity = Loga_context.severity ctx in
       Format.kfprintf k formatter "[%9s] " (Loga_severity.string_of severity)
 
-    let datetime_printer k ctx formatter fmt : 'a =
+    let datetime_printer k _ctx formatter _fmt : 'a =
       let tz, _ = Unix.mktime (Unix.gmtime 0.0) in
       let {
         Unix.tm_year = year;
@@ -34,6 +34,7 @@ module Builtin =
         Unix.tm_hour = hours;
         Unix.tm_min = minutes;
         Unix.tm_sec = seconds;
+        _
       } = Unix.localtime (Unix.gettimeofday ()) in
       let tz_hours = -(int_of_float tz) / 3600 in
       let tz_minutes = -(int_of_float tz) / 60 mod 60 in
