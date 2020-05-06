@@ -16,18 +16,6 @@ type t =
   | Info
   | Debug
 
-let of_int n =
-  match n with
-  | 0 -> Emergency
-  | 1 -> Alert
-  | 2 -> Critical
-  | 3 -> Error
-  | 4 -> Warning
-  | 5 -> Notice
-  | 6 -> Info
-  | 7 -> Debug
-  | _ -> failwith "unexpected"
-
 let to_int s =
   match s with
   | Emergency -> 0

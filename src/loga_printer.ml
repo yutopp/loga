@@ -23,7 +23,7 @@ module Builtin =
 
     let severity_printer k ctx formatter _fmt : 'a =
       let severity = Loga_context.severity ctx in
-      Format.kfprintf k formatter "[%9s] " (Loga_severity.string_of severity)
+      Format.kfprintf k formatter "[%9s] " (Severity.string_of severity)
 
     let datetime_printer k _ctx formatter _fmt : 'a =
       let tz, _ = Unix.mktime (Unix.gmtime 0.0) in

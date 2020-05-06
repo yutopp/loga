@@ -7,7 +7,7 @@
  *)
 
 type t = {
-  severity: Loga_severity.t;
+  severity: Severity.t;
   module_name: string;
   line: int
 }
