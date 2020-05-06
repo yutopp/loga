@@ -8,8 +8,6 @@
 
 module Severity = Severity
 
-let s_base_severity = ref Severity.Debug
-
 module type LOGGER = sig
   type t
 
