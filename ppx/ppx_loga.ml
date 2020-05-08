@@ -1,6 +1,6 @@
 open Ppxlib
 
-let gen_log_expr severity ~loc ~path:_ expr =
+let gen_log_expr severity ~loc ~path expr =
   let open Ast_builder.Default in
   let apply args =
     let line = loc.loc_start.Lexing.pos_lnum in
@@ -17,7 +17,7 @@ let gen_log_expr severity ~loc ~path:_ expr =
     in
     let logger = [%expr Loga.default_logger] in
     let location =
-      [%expr [%e pexp_tuple ~loc [ evar ~loc "__MODULE__"; eint ~loc line ]]]
+      [%expr [%e pexp_tuple ~loc [ estring ~loc path; eint ~loc line ]]]
     in
     {
       expr with

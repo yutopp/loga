@@ -1,6 +1,6 @@
 (lang dune 2.5)
 (name loga)
-(version 0.0.3)
+(version 0.0.4)
 
 (generate_opam_files true)
 
@@ -15,6 +15,5 @@
  (depends
   (ocaml               (and :build (>= 4.06.0)))
   (dune                (and :build (>= 2.5)))
-  (ounit               :with-test)
-  (ppxlib              (>= 0.11.0))
-  (ocaml-compiler-libs (>= v0.9.0))))
+  (ppxlib              (and :build (>= 0.11.0)))
+  (ppx_expect          (and :with-test (>= v0.11.0)))))
