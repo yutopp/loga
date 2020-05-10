@@ -1,7 +1,7 @@
 (library
   (name ppx_loga)
   (public_name loga.ppx)
-  (libraries ppxlib loga)
+  (libraries ocaml-migrate-parsetree loga)
   (kind ppx_rewriter)
   (ppx_runtime_libraries loga)
-  (preprocess (pps ppxlib.metaquot)))
+  (preprocess no_preprocessing))

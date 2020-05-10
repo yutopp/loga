@@ -1,60 +1,98 @@
-open Ppxlib
+open Migrate_parsetree.Ast_406
 
-let gen_log_expr severity ~loc ~path expr =
-  let open Ast_builder.Default in
+let make_expr ~loc desc =
+  Parsetree.{ pexp_desc = desc; pexp_loc = loc; pexp_attributes = [] }
+
+let make_indent ~loc s =
+  let desc = Parsetree.Pexp_ident { txt = Longident.parse s; loc } in
+  make_expr ~loc desc
+
+let make_const_int ~loc i =
+  let desc = Parsetree.Pexp_constant (Pconst_integer (string_of_int i, None)) in
+  make_expr ~loc desc
+
+let make_const_string ~loc s =
+  let desc = Parsetree.Pexp_constant (Pconst_string (s, None)) in
+  make_expr ~loc desc
+
+let make_tuple ~loc exprs =
+  let desc = Parsetree.Pexp_tuple exprs in
+  make_expr ~loc desc
+
+let make_apply ~loc callee args =
+  let desc = Parsetree.(Pexp_apply (callee, args)) in
+  make_expr ~loc desc
+
+let gen_log_expr severity ~loc expr =
   let apply args =
-    let line = loc.loc_start.Lexing.pos_lnum in
+    let line = loc.Location.loc_start.pos_lnum in
+    let path = loc.Location.loc_start.pos_fname in
     let callee =
-      match severity with
-      | Loga.Severity.Emergency -> [%expr Loga.Logger.emergency]
-      | Loga.Severity.Alert -> [%expr Loga.Logger.alert]
-      | Loga.Severity.Critical -> [%expr Loga.Logger.critical]
-      | Loga.Severity.Error -> [%expr Loga.Logger.error]
-      | Loga.Severity.Warning -> [%expr Loga.Logger.warning]
-      | Loga.Severity.Notice -> [%expr Loga.Logger.notice]
-      | Loga.Severity.Info -> [%expr Loga.Logger.info]
-      | Loga.Severity.Debug -> [%expr Loga.Logger.debug]
+      let s =
+        match severity with
+        | Loga.Severity.Emergency -> "Loga.Logger.emergency"
+        | Loga.Severity.Alert -> "Loga.Logger.alert"
+        | Loga.Severity.Critical -> "Loga.Logger.critical"
+        | Loga.Severity.Error -> "Loga.Logger.error"
+        | Loga.Severity.Warning -> "Loga.Logger.warning"
+        | Loga.Severity.Notice -> "Loga.Logger.notice"
+        | Loga.Severity.Info -> "Loga.Logger.info"
+        | Loga.Severity.Debug -> "Loga.Logger.debug"
+      in
+      make_indent ~loc s
     in
-    let logger = [%expr Loga.default_logger] in
-    let location =
-      [%expr [%e pexp_tuple ~loc [ estring ~loc path; eint ~loc line ]]]
+    let logger = make_indent ~loc "Loga.default_logger" in
+    let path = make_const_string ~loc path in
+    let line = make_const_int ~loc line in
+    let location = make_tuple ~loc [ path; line ] in
+    let applied =
+      make_apply ~loc callee
+        ((Asttypes.Nolabel, logger) :: (Asttypes.Nolabel, location) :: args)
     in
-    {
-      expr with
-      pexp_desc =
-        Pexp_apply (callee, (Nolabel, logger) :: (Nolabel, location) :: args);
-    }
+    Parsetree.{ expr with pexp_desc = applied.pexp_desc }
   in
   match expr with
-  | { pexp_desc = Pexp_constant _; _ } ->
+  | Parsetree.{ pexp_desc = Pexp_constant _; _ } ->
       (* Loga.* "" *)
-      let args = [ (Nolabel, expr) ] in
+      let args = [ (Asttypes.Nolabel, expr) ] in
       apply args
-  | { pexp_desc = Pexp_apply (recv, args_with_labels); _ } ->
+  | Parsetree.{ pexp_desc = Pexp_apply (recv, args_with_labels); _ } ->
       (* Loga.* "" ... *)
-      let args = (Nolabel, recv) :: args_with_labels in
+      let args = (Asttypes.Nolabel, recv) :: args_with_labels in
       apply args
-  | _ ->
-      let ppf = Format.std_formatter in
-      Pprintast.expression ppf expr;
-      failwith "Not supported form"
+  | _ -> Location.raise_errorf ~loc "Structure expected"
 
-let extention severity name =
-  Context_free.Rule.extension
-    (Extension.declare name Expression
-       Ast_pattern.(single_expr_payload __)
-       (gen_log_expr severity))
+let gen_log_pstr severity ~loc payload =
+  match payload with
+  | Parsetree.PStr
+      [ Parsetree.{ pstr_desc = Pstr_eval (sexpr, _attrs); pstr_loc; _ } ] ->
+      gen_log_expr ~loc:pstr_loc severity sexpr
+  | _ -> Location.raise_errorf ~loc "Structure expected"
+
+let expr mapper expr =
+  match expr with
+  | Parsetree.{ pexp_desc = Pexp_extension ({ txt; loc }, payload); _ } ->
+      let generator =
+        match txt with
+        | "Loga.emergency" -> Some (gen_log_pstr Loga.Severity.Emergency)
+        | "Loga.alert" -> Some (gen_log_pstr Loga.Severity.Alert)
+        | "Loga.critical" -> Some (gen_log_pstr Loga.Severity.Critical)
+        | "Loga.error" -> Some (gen_log_pstr Loga.Severity.Error)
+        | "Loga.warning" -> Some (gen_log_pstr Loga.Severity.Warning)
+        | "Loga.notice" -> Some (gen_log_pstr Loga.Severity.Notice)
+        | "Loga.info" -> Some (gen_log_pstr Loga.Severity.Info)
+        | "Loga.debug" -> Some (gen_log_pstr Loga.Severity.Debug)
+        | _ -> None
+      in
+      let ast =
+        match generator with
+        | Some gen -> gen ~loc payload
+        | None -> Ast_mapper.default_mapper.expr mapper expr
+      in
+      ast
+  | _ -> Ast_mapper.default_mapper.expr mapper expr
 
 let () =
-  Driver.register_transformation "loga"
-    ~rules:
-      [
-        extention Loga.Severity.Emergency "Loga.emergency";
-        extention Loga.Severity.Alert "Loga.alert";
-        extention Loga.Severity.Critical "Loga.critical";
-        extention Loga.Severity.Error "Loga.error";
-        extention Loga.Severity.Warning "Loga.warning";
-        extention Loga.Severity.Notice "Loga.notice";
-        extention Loga.Severity.Info "Loga.info";
-        extention Loga.Severity.Debug "Loga.debug";
-      ]
+  Migrate_parsetree.Driver.register ~name:"loga"
+    (module Migrate_parsetree.OCaml_406)
+    (fun _ _ -> { Ast_mapper.default_mapper with expr })
