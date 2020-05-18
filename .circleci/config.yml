@@ -6,6 +6,7 @@ jobs:
     steps:
       - checkout
       - run: opam install dune
+      - run: eval $(opam env)
       - run: make install-deps
       - run: make test
 
