@@ -1,7 +1,10 @@
 # Loga
 
+[![Loga](https://circleci.com/gh/yutopp/loga.svg?style=svg)](https://circleci.com/gh/yutopp/loga)
+
 *WIP*
 
+A logging library for OCaml.
 
 # HOW TO INSTALL
 
@@ -28,7 +31,7 @@ Then you can use logger like below!
 
 ``` ocaml
 let () =
-    [%Loga.info "Hello %s %d" "world" 42];
+    [%loga.info "Hello %s %d" "world" 42];
 ```
 
 # How to run
