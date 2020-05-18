@@ -41,7 +41,7 @@ let gen_log_expr severity ~loc expr =
       in
       make_indent ~loc s
     in
-    let logger = make_indent ~loc "Loga.default_logger" in
+    let logger = make_indent ~loc "Loga.logger" in
     let path = make_const_string ~loc path in
     let line = make_const_int ~loc line in
     let location = make_tuple ~loc [ path; line ] in
@@ -60,28 +60,28 @@ let gen_log_expr severity ~loc expr =
       (* Loga.* "" ... *)
       let args = (Asttypes.Nolabel, recv) :: args_with_labels in
       apply args
-  | _ -> Location.raise_errorf ~loc "Structure expected"
+  | _ -> Location.raise_errorf ~loc "Expr constant/apply is expected"
 
 let gen_log_pstr severity ~loc payload =
   match payload with
   | Parsetree.PStr
       [ Parsetree.{ pstr_desc = Pstr_eval (sexpr, _attrs); pstr_loc; _ } ] ->
       gen_log_expr ~loc:pstr_loc severity sexpr
-  | _ -> Location.raise_errorf ~loc "Structure expected"
+  | _ -> Location.raise_errorf ~loc "Structure is expected"
 
 let expr mapper expr =
   match expr with
   | Parsetree.{ pexp_desc = Pexp_extension ({ txt; loc }, payload); _ } ->
       let generator =
         match txt with
-        | "Loga.emergency" -> Some (gen_log_pstr Loga.Severity.Emergency)
-        | "Loga.alert" -> Some (gen_log_pstr Loga.Severity.Alert)
-        | "Loga.critical" -> Some (gen_log_pstr Loga.Severity.Critical)
-        | "Loga.error" -> Some (gen_log_pstr Loga.Severity.Error)
-        | "Loga.warning" -> Some (gen_log_pstr Loga.Severity.Warning)
-        | "Loga.notice" -> Some (gen_log_pstr Loga.Severity.Notice)
-        | "Loga.info" -> Some (gen_log_pstr Loga.Severity.Info)
-        | "Loga.debug" -> Some (gen_log_pstr Loga.Severity.Debug)
+        | "loga.emergency" -> Some (gen_log_pstr Loga.Severity.Emergency)
+        | "loga.alert" -> Some (gen_log_pstr Loga.Severity.Alert)
+        | "loga.critical" -> Some (gen_log_pstr Loga.Severity.Critical)
+        | "loga.error" -> Some (gen_log_pstr Loga.Severity.Error)
+        | "loga.warning" -> Some (gen_log_pstr Loga.Severity.Warning)
+        | "loga.notice" -> Some (gen_log_pstr Loga.Severity.Notice)
+        | "loga.info" -> Some (gen_log_pstr Loga.Severity.Info)
+        | "loga.debug" -> Some (gen_log_pstr Loga.Severity.Debug)
         | _ -> None
       in
       let ast =
