@@ -30,7 +30,8 @@ Then you can use a (default) logger like below! This macro shows date, severity,
 ```
 
 ``` shell
-1900-01-01T00:00:00+00:00 [     INFO] (example/log_example.ml:10) loglog
+# Output
+2020-05-20T13:23:53+09:00 [     INFO] (example/log_example.ml:9) Hello world 42
 ```
 
 Default severity of a logger is `debug`. You can change it by using `set_severity`.
