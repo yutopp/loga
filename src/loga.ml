@@ -6,14 +6,16 @@
  * http://www.boost.org/LICENSE_1_0.txt)
  *)
 
-module Severity = Severity
 module Logger = Logger
+module Severity = Severity
 module Timer = Timer
 
 let logger = Logger.create_default ()
 
 module type HAS_LOGGER = sig
   module Logger = Logger
+  module Severity = Severity
+  module Timer = Timer
 
   val logger : Logger.t
 end
@@ -21,6 +23,8 @@ end
 let with_logger logger =
   ( module struct
     module Logger = Logger
+    module Severity = Severity
+    module Timer = Timer
 
     let logger = logger
   end : HAS_LOGGER )

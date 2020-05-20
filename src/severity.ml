@@ -16,19 +16,8 @@ type t =
   | Info
   | Debug
 
-let to_int s =
+let string_of s =
   match s with
-  | Emergency -> 0
-  | Alert -> 1
-  | Critical -> 2
-  | Error -> 3
-  | Warning -> 4
-  | Notice -> 5
-  | Info -> 6
-  | Debug -> 7
-
-let string_of k =
-  match k with
   | Emergency -> "EMERGENCY"
   | Alert -> "ALERT"
   | Critical -> "CRITICAL"
@@ -37,5 +26,3 @@ let string_of k =
   | Notice -> "NOTICE"
   | Info -> "INFO"
   | Debug -> "DEBUG"
-
-let more_severe_than_or_equal a b = to_int a <= to_int b

@@ -14,6 +14,20 @@ type t = {
 
 type location_t = string * int
 
+let severity_to_int s =
+  let open Severity in
+  match s with
+  | Emergency -> 0
+  | Alert -> 1
+  | Critical -> 2
+  | Error -> 3
+  | Warning -> 4
+  | Notice -> 5
+  | Info -> 6
+  | Debug -> 7
+
+let more_severe_than_or_equal a b = severity_to_int a <= severity_to_int b
+
 type 'a format_t = ('a, Format.formatter, unit, unit) format4
 
 let create ~severity ~formatter ~timer = { severity; formatter; timer }
@@ -35,7 +49,7 @@ let printer ~logger =
 
 let log logger severity (module_name, line) fmt =
   let pp = printer ~logger in
-  match Severity.more_severe_than_or_equal severity logger.severity with
+  match more_severe_than_or_equal severity logger.severity with
   | true ->
       let ctx = Context.make ~severity ~module_name ~line in
       pp (fun _ -> ()) ctx logger.formatter fmt
