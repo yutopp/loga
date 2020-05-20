@@ -8,13 +8,9 @@ A logging library for OCaml.
 
 # HOW TO INSTALL
 
-Clone this repository, then execute `opam pin`.
-
 ```
-opam pin add loga . --strict
+opam install loga
 ```
-
-(TODO: Register to opam...)
 
 # How to use
 
@@ -34,8 +30,17 @@ let () =
     [%loga.info "Hello %s %d" "world" 42];
 ```
 
-# How to run
+# How to develop
 
+## Build
+
+```
+git clone git@github.com:yutopp/loga.git
+cd loga
+opam pin add loga . --strict
+```
+
+## Run tests
 ``` 
 dune runtest
 ```
