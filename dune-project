@@ -13,7 +13,7 @@
  (name loga)
  (synopsis "Logging library for OCaml")
  (depends
+  (ocaml                   (>= 4.06.0))
   (dune                    (>= 2.5))
-  (ocaml                   (and :build (>= 4.06.0)))
-  (ocaml-migrate-parsetree (and :build (>= 1.7.2)))
+  (ocaml-migrate-parsetree (>= 1.7.2))
   (ppx_expect              (and :with-test (>= v0.11.0)))))
